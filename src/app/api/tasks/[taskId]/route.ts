@@ -37,7 +37,7 @@ export async function PATCH(
     );
   } catch (error) {
     console.error(
-      "PATCH /api/tasks/[taskId] error:",
+      "PATCH /task/[taskId] error:",
       error
     );
 
@@ -72,7 +72,7 @@ export async function DELETE(
     );
   } catch (error) {
     console.error(
-      "DELETE /api/tasks/[taskId] error:",
+      "DELETE /task/[taskId] error:",
       error
     );
 
