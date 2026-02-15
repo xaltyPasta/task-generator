@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     console.error(
-      "POST /api/tasks error:",
+      "POST /api/task error:",
       error
     );
 
