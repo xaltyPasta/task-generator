@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["task"]
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  specs     Spec[]
+
+  @@index([email])
+  @@schema("task")
+}
+
+model Spec {
+  id           String           @id @default(uuid()) @db.Uuid
+  title        String
+  goal         String
+  targetUsers  String
+  constraints  String?
+  risks        String?
+  templateType TemplateType
+  createdAt    DateTime         @default(now())
+  userId       String           @db.Uuid
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  generations  SpecGeneration[]
+  stories      Story[]
+
+  @@index([createdAt])
+  @@index([userId])
+  @@schema("task")
+}
+
+model Story {
+  id        String   @id @default(uuid()) @db.Uuid
+  title     String
+  order     Int
+  createdAt DateTime @default(now())
+  specId    String   @db.Uuid
+  spec      Spec     @relation(fields: [specId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+
+  @@unique([specId, order])
+  @@index([specId])
+  @@schema("task")
+}
+
+model Task {
+  id          String     @id @default(uuid()) @db.Uuid
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  order       Int
+  createdAt   DateTime   @default(now())
+  storyId     String     @db.Uuid
+  story       Story      @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@unique([storyId, order])
+  @@index([storyId])
+  @@schema("task")
+}
+
+model SpecGeneration {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  specId       String    @db.Uuid
+  model        String
+  temperature  Float
+  prompt       String
+  rawResponse  Json
+  parsedOutput Json
+  createdAt    DateTime? @default(now()) @db.Timestamp(6)
+  spec         Spec      @relation(fields: [specId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_spec_generation_spec")
+
+  @@index([specId], map: "idx_spec_generation_specid")
+  @@schema("task")
+}
+
+enum TemplateType {
+  WEB
+  MOBILE
+  INTERNAL_TOOL
+
+  @@schema("task")
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+
+  @@schema("task")
+}
