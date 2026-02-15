@@ -5,12 +5,19 @@ import {
   deleteStory,
 } from "@/lib/services/story.service";
 
+type RouteContext = {
+  params: Promise<{
+    storyId: string;
+  }>;
+};
+
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { storyId: string } }
+  context: RouteContext
 ) {
   try {
     const userId = await requireAuth();
+
     if (!userId) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -18,19 +25,21 @@ export async function PATCH(
       );
     }
 
-    const { title } =
-      await req.json();
+    const { storyId } = await context.params;
+    const { title } = await req.json();
 
-    await updateStory(
-      params.storyId,
-      userId,
-      title
+    await updateStory(storyId, userId, title);
+
+    return NextResponse.json(
+      { success: true },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error(
+      "PATCH /api/stories/[storyId] error:",
+      error
     );
 
-    return NextResponse.json({
-      success: true,
-    });
-  } catch {
     return NextResponse.json(
       { error: "Update failed" },
       { status: 500 }
@@ -40,10 +49,11 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { storyId: string } }
+  context: RouteContext
 ) {
   try {
     const userId = await requireAuth();
+
     if (!userId) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -51,19 +61,23 @@ export async function DELETE(
       );
     }
 
-    await deleteStory(
-      params.storyId,
-      userId
+    const { storyId } = await context.params;
+
+    await deleteStory(storyId, userId);
+
+    return NextResponse.json(
+      { success: true },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error(
+      "DELETE /api/stories/[storyId] error:",
+      error
     );
 
-    return NextResponse.json({
-      success: true,
-    });
-  } catch {
     return NextResponse.json(
       { error: "Delete failed" },
       { status: 500 }
     );
   }
 }
-

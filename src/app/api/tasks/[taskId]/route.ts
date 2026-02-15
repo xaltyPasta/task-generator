@@ -5,7 +5,7 @@ import {
   deleteTask,
 } from "@/lib/services/task.service";
 
-type Context = {
+type RouteContext = {
   params: Promise<{
     taskId: string;
   }>;
@@ -13,12 +13,13 @@ type Context = {
 
 export async function PATCH(
   req: NextRequest,
-  context: Context
+  context: RouteContext
 ) {
   try {
     const { taskId } = await context.params;
 
     const userId = await requireAuth();
+
     if (!userId) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -30,11 +31,16 @@ export async function PATCH(
 
     await updateTask(taskId, userId, body);
 
-    return NextResponse.json({
-      success: true,
-    });
+    return NextResponse.json(
+      { success: true },
+      { status: 200 }
+    );
   } catch (error) {
-    console.error(error);
+    console.error(
+      "PATCH /api/tasks/[taskId] error:",
+      error
+    );
+
     return NextResponse.json(
       { error: "Update failed" },
       { status: 500 }
@@ -44,12 +50,13 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  context: Context
+  context: RouteContext
 ) {
   try {
     const { taskId } = await context.params;
 
     const userId = await requireAuth();
+
     if (!userId) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -59,11 +66,16 @@ export async function DELETE(
 
     await deleteTask(taskId, userId);
 
-    return NextResponse.json({
-      success: true,
-    });
+    return NextResponse.json(
+      { success: true },
+      { status: 200 }
+    );
   } catch (error) {
-    console.error(error);
+    console.error(
+      "DELETE /api/tasks/[taskId] error:",
+      error
+    );
+
     return NextResponse.json(
       { error: "Delete failed" },
       { status: 500 }
