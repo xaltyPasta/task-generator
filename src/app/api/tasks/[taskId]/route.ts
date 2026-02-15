@@ -36,10 +36,7 @@ export async function PATCH(
       { status: 200 }
     );
   } catch (error) {
-    console.error(
-      "PATCH /task/[taskId] error:",
-      error
-    );
+    console.error("PATCH /task/[taskId] error:", error);
 
     return NextResponse.json(
       { error: "Update failed" },
@@ -71,10 +68,7 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
-    console.error(
-      "DELETE /task/[taskId] error:",
-      error
-    );
+    console.error("DELETE /task/[taskId] error:", error);
 
     return NextResponse.json(
       { error: "Delete failed" },
